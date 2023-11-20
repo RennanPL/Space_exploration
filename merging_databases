@@ -1,0 +1,35 @@
+install.packages("tidyverse")
+library("tidyverse")
+install.packages("dplyr")
+library(dplyr)
+
+#baixando as bases de dados e salvando em objetos
+
+datawar <- as.data.frame(read_csv("data_war.csv")) 
+
+dataspace <- as.data.frame(read_csv("space_objects.csv"))
+
+View(dataspace)
+View(datawar)
+
+#preparando as bases para a mesclagem
+
+colnames(datawar)[colnames(datawar) == "stateabb"] <- "iso"
+colnames(dataspace)[colnames(dataspace) == "Code"] <- "iso"
+colnames(dataspace)[colnames(dataspace) == "Year"] <- "year"
+
+
+# Encontre os anos e isos comuns entre as duas bases
+anos_comuns <- intersect(datawar$year, dataspace$year)
+isos_comuns <- intersect(datawar$iso, dataspace$iso)
+
+# Filtra as bases de dados apenas para os anos e isos comuns
+dados_estado_filtrados <- datawar[datawar$year %in% anos_comuns & datawar$iso %in% isos_comuns, ]
+dados_espaco_filtrados <- dataspace[dataspace$year %in% anos_comuns & dataspace$iso %in% isos_comuns, ]
+
+# Realize a junção usando a função merge
+warspace1 <- merge(dados_estado_filtrados, dados_espaco_filtrados, by = c("iso", "year"), all.x = TRUE)
+
+warspace1[is.na(warspace1)] <- 0
+
+View(warspace1)
